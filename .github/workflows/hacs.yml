@@ -16,3 +16,6 @@ jobs:
         uses: hacs/action@main
         with:
           category: integration
+          # Topics must be set on the GitHub repo (homeassistant, hacs, integration).
+          # The cloud-agent token cannot edit repository topics; ignore until set in the UI.
+          ignore: topics
