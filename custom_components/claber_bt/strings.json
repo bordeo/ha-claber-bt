@@ -1,0 +1,39 @@
+{
+  "config": {
+    "flow_title": "{name}",
+    "step": {
+      "user": {
+        "description": "Select a discovered Claber device. Supported: Hydro-4 BT (90840) and Rain Sensor BT (90844). Status comes from BLE adverts. Hydro-4 also exposes valves, duration, Stop and programs; GATT only on explicit command.",
+        "data": {
+          "address": "Device"
+        }
+      },
+      "bluetooth_confirm_rain": {
+        "description": "Do you want to set up {name}?\n\nState is read from BLE adverts, with no connection."
+      },
+      "bluetooth_confirm_hydro": {
+        "description": "Do you want to set up {name}?\n\nStatus comes from BLE adverts. You also get line valves 1–4, manual duration, Stop, and program A/B entities. GATT is used only when you press an explicit command (never in the background)."
+      }
+    },
+    "abort": {
+      "not_supported": "This Bluetooth device is not a supported Claber model (or its manufacturer data could not be resolved safely).",
+      "model_not_supported_yet": "This Claber model code is recognized but not supported yet.",
+      "no_devices_found": "No supported Claber devices found. Make sure your device is powered on and within range of a Bluetooth adapter or Bluetooth proxy.",
+      "already_configured": "This device is already configured."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Claber BT options",
+        "description": "Hydro commands ({scope}) use MAC-derived auth only — no PIN. Optional preferred Bluetooth source pins the connect path. This integration creates no automations and does not expose entities to HomeKit or Assist.",
+        "data": {
+          "preferred_bluetooth_source": "Preferred Bluetooth source id (optional; leave empty to use the last connectable Bluetooth adapter or proxy source)"
+        }
+      }
+    },
+    "abort": {
+      "options_only_hydro": "Command options are only available for Hydro-4 BT entries."
+    }
+  }
+}

@@ -1,0 +1,34 @@
+name: Feature request
+description: Suggest an enhancement
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What problem would this solve?
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed solution
+      description: How should it work? Keep valve commands manual-only unless you have a strong safety case.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Optional — other approaches you tried or rejected.
+  - type: dropdown
+    id: device
+    attributes:
+      label: Related device
+      options:
+        - Hydro-4 BT (90840)
+        - Rain Sensor BT (90844)
+        - Card / Lovelace
+        - General / both devices
+    validations:
+      required: true

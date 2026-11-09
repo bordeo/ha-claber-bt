@@ -1,0 +1,65 @@
+name: Bug report
+description: Report something that is not working
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for filing a bug. Please redact MAC addresses, hostnames, and tokens from any logs or diagnostics.
+  - type: textarea
+    id: description
+    attributes:
+      label: Describe the bug
+      description: What happened, and what did you expect?
+    validations:
+      required: true
+  - type: input
+    id: ha_version
+    attributes:
+      label: Home Assistant version
+      placeholder: "2024.11.0"
+    validations:
+      required: true
+  - type: input
+    id: integration_version
+    attributes:
+      label: Claber BT version
+      placeholder: "0.1.13"
+    validations:
+      required: true
+  - type: dropdown
+    id: device
+    attributes:
+      label: Device
+      options:
+        - Hydro-4 BT (90840)
+        - Rain Sensor BT (90844)
+        - Both / other
+    validations:
+      required: true
+  - type: dropdown
+    id: bluetooth_path
+    attributes:
+      label: Bluetooth path
+      options:
+        - Home Assistant built-in adapter
+        - ESPHome Bluetooth proxy
+        - Other Bluetooth proxy
+        - Unknown
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. …
+        2. …
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs / diagnostics (redacted)
+      description: Paste relevant log lines or config-entry diagnostics with MACs removed.
+      render: shell

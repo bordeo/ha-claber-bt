@@ -1,0 +1,26 @@
+{
+  "domain": "claber_bt",
+  "name": "Claber BT",
+  "bluetooth": [
+    {
+      "local_name": "Claber",
+      "connectable": false
+    }
+  ],
+  "codeowners": ["@bordeo"],
+  "config_flow": true,
+  "after_dependencies": [
+    "frontend"
+  ],
+  "dependencies": [
+    "bluetooth_adapters",
+    "http"
+  ],
+  "documentation": "https://github.com/bordeo/ha-claber-bt",
+  "integration_type": "device",
+  "iot_class": "local_push",
+  "issue_tracker": "https://github.com/bordeo/ha-claber-bt/issues",
+  "quality_scale": "custom",
+  "requirements": [],
+  "version": "0.1.13"
+}

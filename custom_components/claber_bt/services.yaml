@@ -1,0 +1,71 @@
+manual_once:
+  name: Hydro manual command
+  description: >
+    One MAC-derived auth write and one manual start (line 1–4, minutes 1–120)
+    or an explicit global stop_only. Prefer the valve/number/button entities for
+    daily use. No retries. An ambiguous ACK is not treated as success. This is
+    not a guarantee of physical water flow.
+  fields:
+    line:
+      required: false
+      default: 1
+      selector:
+        number:
+          min: 1
+          max: 4
+    minutes:
+      required: false
+      default: 1
+      selector:
+        number:
+          min: 1
+          max: 120
+    stop_only:
+      required: false
+      default: false
+      description: True sends only the global manual stop after auth (separate connection from start).
+      selector:
+        boolean:
+
+write_program:
+  name: Write Hydro program (batch)
+  description: >
+    One GATT session: fresh read, merge all provided fields for program A or B,
+    write command 0B, then verify with a read. Prefer this over flipping many
+    program entities so a single Save cannot lose mid-queue updates.
+    Optional maps: days (mon–sun → bool), lines ("1"–"4" → minutes),
+    starts ("1"–"4" → {on, time}).
+  fields:
+    program:
+      required: true
+      selector:
+        select:
+          options: ["A", "B"]
+    enabled:
+      required: false
+      selector:
+        boolean:
+    budget:
+      required: false
+      selector:
+        number:
+          min: 50
+          max: 150
+          step: 10
+    days:
+      required: false
+      description: Map of weekday keys (mon–sun) to booleans.
+      selector:
+        object:
+    lines:
+      required: false
+      description: Map of line numbers "1"–"4" to duration in minutes (0–120).
+      selector:
+        object:
+    starts:
+      required: false
+      description: >
+        Map of start slots "1"–"4" to objects with on (bool) and time ("HH:MM").
+        When on is false the slot is cleared.
+      selector:
+        object:
