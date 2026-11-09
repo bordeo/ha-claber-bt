@@ -79,6 +79,10 @@ def _install_stubs() -> None:
     entity_platform = _ensure("homeassistant.helpers.entity_platform")
     entity_platform.AddEntitiesCallback = object
 
+    cv = _ensure("homeassistant.helpers.config_validation")
+    cv.config_entry_only_config_schema = lambda domain: {}
+    cv.empty_config_schema = lambda domain: {}
+
     typing_mod = _ensure("homeassistant.helpers.typing")
     typing_mod.ConfigType = dict
 

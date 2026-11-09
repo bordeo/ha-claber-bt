@@ -1,6 +1,9 @@
 {
   "domain": "claber_bt",
   "name": "Claber BT",
+  "after_dependencies": [
+    "frontend"
+  ],
   "bluetooth": [
     {
       "local_name": "Claber",
@@ -9,9 +12,6 @@
   ],
   "codeowners": ["@bordeo"],
   "config_flow": true,
-  "after_dependencies": [
-    "frontend"
-  ],
   "dependencies": [
     "bluetooth_adapters",
     "http"

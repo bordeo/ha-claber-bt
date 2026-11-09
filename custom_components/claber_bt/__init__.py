@@ -23,6 +23,7 @@ from homeassistant.components.http import StaticPathConfig
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_ADDRESS, Platform
 from homeassistant.core import HomeAssistant, callback
+from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.event import async_track_time_interval
 from homeassistant.helpers.typing import ConfigType
 
@@ -34,6 +35,8 @@ from .const import (
     VERSION,
     normalize_mac,
 )
+
+CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
 from .entity_migration import async_migrate_entity_registry
 from .loop_safety import push_processors, run_on_hass_loop
 from .parser import ClaberBluetoothDeviceData, ClaberUpdate
