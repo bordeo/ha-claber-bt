@@ -21,12 +21,16 @@ Home Assistant custom integration and Lovelace card for Claber myAquaSystem Blue
 
 ## Supported devices
 
-This integration targets Claber's [myAquaSystem](https://www.claber.com/en/prodotti/in-evidenza/myaquasystem/) Bluetooth range, the connected family managed with the myClaber app. It should be compatible with myAquaSystem devices for that reason. Only Hydro-4 BT and Rain Sensor BT have been tested; the rest of the myAquaSystem range has not.
+This integration targets Claber's [myAquaSystem](https://www.claber.com/en/prodotti/in-evidenza/myaquasystem/) Bluetooth range, the connected family managed with the myClaber app. It should be compatible with myAquaSystem devices for that reason.
+
+Hydro-4 BT and Rain Sensor BT are the only models tested with live hardware. Controller-4 BT and Elettra-BT are recognized from the proved myClaber model table (same hydro advert parser as Hydro-4) and reuse the Hydro command path, but those commands are untested here. myAquaSolar timers (Tempo / Dual) are a different series and are not supported yet.
 
 | Device | Model | Notes |
 | --- | --- | --- |
-| Hydro-4 BT | 90840 | Status plus manual and program commands |
-| Rain Sensor BT | 90844 | Temperature, rain, battery |
+| Hydro-4 BT | 90840 | Tested. Status plus manual and program commands (lines 1-4) |
+| Controller-4 BT | 90842 | Recognized, untested. Treated like Hydro-4 (lines 1-4) |
+| Elettra-BT | 90843 | Recognized, untested. Single line only |
+| Rain Sensor BT | 90844 | Tested. Temperature, rain, battery |
 
 ## Requirements
 

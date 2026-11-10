@@ -30,9 +30,9 @@ from homeassistant.helpers.typing import ConfigType
 from .const import (
     CONF_DEVICE_KIND,
     DEFAULT_MANUAL_MINUTES,
-    DEVICE_KIND_HYDRO4,
     DOMAIN,
     VERSION,
+    is_hydro_family,
     normalize_mac,
 )
 
@@ -235,7 +235,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ClaberBTConfigEntry) -> 
     task = hass.async_create_task(_kick())
     entry.async_on_unload(task.cancel)
 
-    if device_kind == DEVICE_KIND_HYDRO4:
+    if is_hydro_family(device_kind):
         from .manual_once import async_register_manual_once
         from .hydro_program_session import async_register_program_services
 

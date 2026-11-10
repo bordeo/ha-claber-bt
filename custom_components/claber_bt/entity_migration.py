@@ -14,9 +14,9 @@ if TYPE_CHECKING:
     from homeassistant.core import HomeAssistant
 
 try:
-    from .const import CONF_DEVICE_KIND, DEVICE_KIND_HYDRO4, DEVICE_KIND_RAIN
+    from .const import CONF_DEVICE_KIND, DEVICE_KIND_RAIN, is_hydro_family
 except ImportError:  # unittest without package context
-    from const import CONF_DEVICE_KIND, DEVICE_KIND_HYDRO4, DEVICE_KIND_RAIN  # type: ignore[no-redef]
+    from const import CONF_DEVICE_KIND, DEVICE_KIND_RAIN, is_hydro_family  # type: ignore[no-redef]
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -49,7 +49,7 @@ def _uid_is_obsolete(uid: str) -> bool:
 async def async_migrate_entity_registry(hass: "HomeAssistant", entry: "ConfigEntry") -> None:
     """Drop obsolete registry rows for this config entry."""
     kind = entry.data.get(CONF_DEVICE_KIND)
-    if kind not in (DEVICE_KIND_HYDRO4, DEVICE_KIND_RAIN):
+    if not (is_hydro_family(kind) or kind == DEVICE_KIND_RAIN):
         return
     from homeassistant.helpers import entity_registry as er
 
@@ -57,8 +57,8 @@ async def async_migrate_entity_registry(hass: "HomeAssistant", entry: "ConfigEnt
     removed: list[str] = []
     for ent in er.async_entries_for_config_entry(registry, entry.entry_id):
         uid = ent.unique_id or ""
-        # Only strip Hydro obsolete tokens; Rain keeps its sensors
-        if kind == DEVICE_KIND_HYDRO4 and _uid_is_obsolete(uid):
+        # Only strip Hydro-family obsolete tokens; Rain keeps its sensors
+        if is_hydro_family(kind) and _uid_is_obsolete(uid):
             registry.async_remove(ent.entity_id)
             removed.append(ent.entity_id)
     if removed:

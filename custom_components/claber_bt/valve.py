@@ -23,12 +23,12 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from . import ClaberBTConfigEntry
 from .const import (
     CONF_DEVICE_KIND,
-    DEVICE_KIND_HYDRO4,
     DOMAIN,
-    MANUAL_LINES,
     MANUFACTURER,
     MODEL_NAMES,
     MODEL_NUMBERS,
+    is_hydro_family,
+    manual_lines_for_kind,
 )
 from .manual_once import execute_command
 from .parser import ClaberUpdate
@@ -41,10 +41,14 @@ async def async_setup_entry(
     entry: ClaberBTConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
-    if entry.data.get(CONF_DEVICE_KIND) != DEVICE_KIND_HYDRO4:
+    kind = entry.data.get(CONF_DEVICE_KIND)
+    if not is_hydro_family(kind):
         return
     async_add_entities(
-        [ClaberLineValve(hass, entry, line) for line in MANUAL_LINES]
+        [
+            ClaberLineValve(hass, entry, line)
+            for line in manual_lines_for_kind(kind)
+        ]
     )
 
 
@@ -91,7 +95,7 @@ class ClaberLineValve(ValveEntity):
 
         @callback
         def _on_update(update: ClaberUpdate) -> None:
-            if update.device_kind != DEVICE_KIND_HYDRO4:
+            if not is_hydro_family(update.device_kind):
                 return
             if not update.trustworthy or not update.fields:
                 # Keep last known closed/open; unknown only before first live.

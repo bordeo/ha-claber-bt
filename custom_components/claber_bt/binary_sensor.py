@@ -31,8 +31,8 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from . import ClaberBTConfigEntry
 from .const import (
     DOMAIN,
-    DEVICE_KIND_HYDRO4,
     DEVICE_KIND_RAIN,
+    is_hydro_family,
     MANUFACTURER,
     MODEL_NAMES,
     MODEL_NUMBERS,
@@ -122,7 +122,7 @@ def binary_sensor_update_to_bluetooth_data_update(
                 "has_connected": None,
                 "has_scanned": None,
             }
-    elif update.device_kind == DEVICE_KIND_HYDRO4:
+    elif is_hydro_family(update.device_kind):
         descriptions = _HYDRO_BINARY
         reachable = True if update.live_confirmed else None
         if update.trustworthy and update.fields:

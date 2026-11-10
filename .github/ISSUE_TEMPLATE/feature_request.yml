@@ -27,6 +27,8 @@ body:
       label: Related device
       options:
         - Hydro-4 BT (90840)
+        - Controller-4 BT (90842)
+        - Elettra-BT (90843)
         - Rain Sensor BT (90844)
         - Card / Lovelace
         - General / both devices

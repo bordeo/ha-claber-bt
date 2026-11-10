@@ -1,11 +1,13 @@
 """Config flow for Claber BT (passive discovery; optional Bluetooth source).
 
 Default: pick a discovered BLE device (no manual MAC field). Model/title from
-advert classification when verifiable. Passive sensors always. Hydro-4 command
-entities (duration + open lines + stop) are always available — no opt-in mode.
+advert classification when verifiable. Passive sensors always. Hydro-family
+command entities (duration + open lines + stop) are always available.
 
+0.1.14: Controller-4 BT (modulo4) and Elettra-BT (elettrovalvola) unlocked via
+the proved myClaber model nibble table; same hydro confirm/options path.
 0.1.11: unique_id is always a normalized MAC (AA:BB:...); discovery confirm
-copy is kind-specific (Rain vs Hydro).
+copy is kind-specific (Rain vs Hydro-family).
 """
 
 from __future__ import annotations
@@ -30,12 +32,12 @@ from .claber_passive import DecodeError, classify, msd_from_service_info
 from .const import (
     CONF_BLUETOOTH_SOURCE,
     CONF_DEVICE_KIND,
-    DEVICE_KIND_HYDRO4,
     DEVICE_KIND_RAIN,
     DOMAIN,
     MODEL_NAMES,
     SUPPORTED_DEVICE_KINDS,
-    UNSUPPORTED_DEVICE_KINDS,
+    is_hydro_family,
+    manual_lines_for_kind,
     normalize_mac,
 )
 from .parser import ClaberBluetoothDeviceData
@@ -76,11 +78,7 @@ class ClaberBTConfigFlow(ConfigFlow, domain=DOMAIN):
         self._abort_if_unique_id_configured()
 
         kind = _classify_service_info(discovery_info)
-        if kind is None:
-            return self.async_abort(reason="not_supported")
-        if kind in UNSUPPORTED_DEVICE_KINDS:
-            return self.async_abort(reason="model_not_supported_yet")
-        if kind not in SUPPORTED_DEVICE_KINDS:
+        if kind is None or kind not in SUPPORTED_DEVICE_KINDS:
             return self.async_abort(reason="not_supported")
 
         self._discovery_info = discovery_info
@@ -184,13 +182,13 @@ class ClaberBTConfigFlow(ConfigFlow, domain=DOMAIN):
 
 
 class ClaberBTOptionsFlow(OptionsFlowWithReload):
-    """Options: optional preferred Bluetooth source for Hydro commands."""
+    """Options: optional preferred Bluetooth source for hydro-family commands."""
 
     async def async_step_init(
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
         kind = self.config_entry.data.get(CONF_DEVICE_KIND)
-        if kind != DEVICE_KIND_HYDRO4:
+        if not is_hydro_family(kind):
             return self.async_abort(reason="options_only_hydro")
 
         if user_input is not None:
@@ -199,6 +197,12 @@ class ClaberBTOptionsFlow(OptionsFlowWithReload):
                 title="",
                 data={**({CONF_BLUETOOTH_SOURCE: source} if source else {})},
             )
+
+        lines = manual_lines_for_kind(kind)
+        if lines == (1,):
+            scope = "linea 1, durata 1-120 min, stop globale; auth MAC; nessun PIN"
+        else:
+            scope = "linee 1-4, durata 1-120 min, stop globale; auth MAC; nessun PIN"
 
         return self.async_show_form(
             step_id="init",
@@ -211,7 +215,5 @@ class ClaberBTOptionsFlow(OptionsFlowWithReload):
                     ): str,
                 }
             ),
-            description_placeholders={
-                "scope": "linee 1–4, durata 1–120 min, stop globale; auth MAC; nessun PIN",
-            },
+            description_placeholders={"scope": scope},
         )
