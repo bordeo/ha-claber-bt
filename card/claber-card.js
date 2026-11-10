@@ -119,7 +119,7 @@
       startProgramNowQ: "Avviare ora Programma {letter}?",
       activeLine: "Attivo · Linea {lines}",
       dayLabels: { lun: "Lun", mar: "Mar", mer: "Mer", gio: "Gio", ven: "Ven", sab: "Sab", dom: "Dom" },
-      cardDescription: "Claber Hydro-4 / Rain Sensor — stile app myClaber",
+      cardDescription: "Claber Hydro-4 / Rain Sensor, stile app myClaber",
     },
   };
 
@@ -419,8 +419,8 @@
         for (let i = 1; i <= 4; i++) {
           push("switch", `${prog}_orario_${i}_attivo`);
           push("time", `${prog}_orario_${i}`);
-          push("number", `${prog}_linea_${i}`);
         }
+        for (let i = 1; i <= 4; i++) push("number", `${prog}_linea_${i}`);
       }
       const r = this._config.rain_device;
       if (r) {
@@ -550,9 +550,19 @@
       );
     }
 
+    _lineIndices() {
+      // Prefer valves that exist for this hydro prefix (Elettra only creates line 1).
+      const found = [];
+      for (let i = 1; i <= 4; i++) {
+        const id = this._e("valve", `linea_${i}`);
+        if (this._hass && this._hass.states && this._hass.states[id]) found.push(i);
+      }
+      return found.length ? found : [1, 2, 3, 4];
+    }
+
     _rawOpenLines() {
       const open = [];
-      for (let i = 1; i <= 4; i++) {
+      for (const i of this._lineIndices()) {
         if (this._val(this._e("valve", `linea_${i}`)) === "open") open.push(i);
       }
       return open;
@@ -680,13 +690,18 @@
           on: this._on(this._e("switch", `${p}_orario_${i}_attivo`)),
           time: this._val(this._e("time", `${p}_orario_${i}`), "06:00") || "06:00",
         };
+      }
+      for (const i of this._lineIndices()) {
         draft.lines[i] = this._num(this._e("number", `${p}_linea_${i}`), 0);
       }
       return draft;
     }
 
     _totalMins(draft) {
-      return [1, 2, 3, 4].reduce((a, i) => a + (Number(draft.lines[i]) || 0), 0);
+      return this._lineIndices().reduce(
+        (a, i) => a + (Number(draft.lines[i]) || 0),
+        0
+      );
     }
 
     _draftDiffers(d, base) {
@@ -702,6 +717,8 @@
           String(base.slots[i].time).slice(0, 5)
         )
           return true;
+      }
+      for (const i of this._lineIndices()) {
         if (Number(d.lines[i]) !== Number(base.lines[i])) return true;
       }
       return false;
@@ -725,8 +742,10 @@
         for (const k of DAY_KEYS) days[DAY_TO_EN[k] || k] = !!d.days[k];
         const lines = {};
         const starts = {};
-        for (let i = 1; i <= 4; i++) {
+        for (const i of this._lineIndices()) {
           lines[String(i)] = Number(d.lines[i]) || 0;
+        }
+        for (let i = 1; i <= 4; i++) {
           starts[String(i)] = {
             on: !!d.slots[i].on,
             time: String(d.slots[i].time).slice(0, 5),
@@ -775,6 +794,8 @@
                 time: String(d.slots[i].time).slice(0, 5),
               });
             }
+          }
+          for (const i of this._lineIndices()) {
             if (Number(d.lines[i]) !== Number(base.lines[i])) {
               await this._call("number", "set_value", {
                 entity_id: this._e("number", `${p}_linea_${i}`),
@@ -1060,8 +1081,10 @@
       if (!on) return this._t("inactive");
       let start = null;
       let tot = 0;
-      for (let i = 1; i <= 4; i++) {
+      for (const i of this._lineIndices()) {
         tot += this._num(this._e("number", `${p}_linea_${i}`), 0);
+      }
+      for (let i = 1; i <= 4; i++) {
         if (!start && this._on(this._e("switch", `${p}_orario_${i}_attivo`))) {
           start = this._val(this._e("time", `${p}_orario_${i}`), null);
         }
@@ -1086,7 +1109,7 @@
 
       let lines = "";
       const pend = this._pending;
-      for (let i = 1; i <= 4; i++) {
+      for (const i of this._lineIndices()) {
         const isOpen = open.includes(i);
         const isPend =
           pend &&
@@ -1179,7 +1202,7 @@
       const refreshDis = this._busy ? "disabled" : "";
 
       let lines = "";
-      for (let i = 1; i <= 4; i++) {
+      for (const i of this._lineIndices()) {
         const v = Number(d.lines[i]) || 0;
         lines += `<div class="field"><span>${this._t("line")} ${i}</span>
           <input type="number" min="0" max="120" step="1" value="${v}" data-draft="line" data-i="${i}" ${formDis}/>
@@ -1248,7 +1271,9 @@
       const remain = this._countdownRemain();
       const durata = this._num(this._e("number", "durata_manuale"), 1);
       let radios = "";
-      for (let i = 1; i <= 4; i++) {
+      const lineIdx = this._lineIndices();
+      if (!lineIdx.includes(this._manualLine)) this._manualLine = lineIdx[0] || 1;
+      for (const i of lineIdx) {
         radios += `<label class="radio"><input type="radio" name="mline" value="${i}" ${this._manualLine === i ? "checked" : ""} data-act="pick-line" data-line="${i}" ${this._busy || this._pending ? "disabled" : ""}/> ${i}</label>`;
       }
       return `

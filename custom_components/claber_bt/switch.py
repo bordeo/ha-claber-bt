@@ -18,7 +18,6 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from . import ClaberBTConfigEntry
 from .const import (
     CONF_DEVICE_KIND,
-    DEVICE_KIND_HYDRO4,
     DOMAIN,
     MANUFACTURER,
     MODEL_NAMES,
@@ -27,6 +26,7 @@ from .const import (
     WEEKDAY_KEYS,
     WEEKDAY_LABELS_IT,
     START_SLOTS,
+    is_hydro_family,
 )
 from .hydro_program_session import async_apply_program_field, async_set_auto_mode
 from .parser import ClaberUpdate
@@ -54,7 +54,7 @@ async def async_setup_entry(
     entry: ClaberBTConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
-    if entry.data.get(CONF_DEVICE_KIND) != DEVICE_KIND_HYDRO4:
+    if not is_hydro_family(entry.data.get(CONF_DEVICE_KIND)):
         return
     store = hass.data[DOMAIN][entry.entry_id]
     ps: ProgramStore = store.setdefault("program_store", ProgramStore())
@@ -218,7 +218,7 @@ class ClaberAutoModeSwitch(SwitchEntity):
 
         @callback
         def _on_update(update: ClaberUpdate) -> None:
-            if update.device_kind != DEVICE_KIND_HYDRO4:
+            if not is_hydro_family(update.device_kind):
                 return
             if update.trustworthy and update.fields:
                 self._is_on = bool(update.fields.get("automatic_watering_enabled"))

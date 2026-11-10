@@ -5,6 +5,19 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.14] - 2026-11-10
+
+### Added
+
+- Controller-4 BT (90842, model code `modulo4`) and Elettra-BT (90843, model code `elettrovalvola`) discovery and setup from the proved myClaber model table
+- Elettra exposes line 1 only; Controller-4 uses lines 1-4 like Hydro-4
+- Card hides missing line valves so Elettra shows a single line
+
+### Changed
+
+- Hydro-family command path (passive decode, valves, programs, services, options) is shared by Hydro-4, Controller-4, and Elettra
+- Docs: myAquaSystem scope; Controller-4 / Elettra marked recognized but untested; myAquaSolar not supported yet
+
 ## [0.1.13] - 2026-11-09
 
 ### Added
@@ -16,7 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Manifest documentation / issue tracker / codeowners point at this repository
-- Public-facing service and config-flow copy scrubbed of private draft notes
+- Service and config-flow copy clarified for public release
 
 ### Fixed
 
@@ -26,7 +39,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Cmd 0C “start program A/B now” buttons
+- Cmd 0C "start program A/B now" buttons
 
 ## [0.1.11] - 2026-11
 
@@ -49,4 +62,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Rain uses the same cache reconcile as Hydro
 - Hydro lines are `valve` with device class water; remaining time is a timestamp
 
+[0.1.14]: https://github.com/bordeo/ha-claber-bt/releases/tag/v0.1.14
 [0.1.13]: https://github.com/bordeo/ha-claber-bt/releases/tag/v0.1.13

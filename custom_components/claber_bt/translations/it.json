@@ -3,7 +3,7 @@
     "flow_title": "{name}",
     "step": {
       "user": {
-        "description": "Seleziona un dispositivo Claber rilevato. Supportati: Hydro-4 BT (90840) e Rain Sensor BT (90844). Lo stato arriva dagli advert BLE. Hydro-4 espone anche valvole, durata, Stop e programmi; GATT solo su comando esplicito.",
+        "description": "Seleziona un dispositivo Claber rilevato. Riconosciuti: Hydro-4 BT (90840), Controller-4 BT (90842), Elettra-BT (90843), Rain Sensor BT (90844). Lo stato arriva dagli advert BLE. I dispositivi hydro espongono anche valvole, durata, Stop e programmi; GATT solo su comando esplicito. Solo Hydro-4 e Rain Sensor sono stati testati dal vivo.",
         "data": {
           "address": "Dispositivo"
         }
@@ -12,12 +12,11 @@
         "description": "Vuoi configurare {name}?\n\nLo stato si legge dagli advert BLE, senza connessione."
       },
       "bluetooth_confirm_hydro": {
-        "description": "Vuoi configurare {name}?\n\nLo stato arriva dagli advert BLE. Espone anche valvole linee 1–4, durata manuale, Stop e entità programmi A/B. Il GATT si usa solo su comando esplicito (mai in background)."
+        "description": "Vuoi configurare {name}?\n\nLo stato arriva dagli advert BLE. Espone anche valvole di linea, durata manuale, Stop e entità programmi A/B. Il GATT si usa solo su comando esplicito (mai in background)."
       }
     },
     "abort": {
       "not_supported": "Questo dispositivo Bluetooth non è un modello Claber supportato (oppure i manufacturer data non sono risolvibili in modo sicuro).",
-      "model_not_supported_yet": "Questo codice modello Claber è riconosciuto ma non ancora supportato.",
       "no_devices_found": "Nessun dispositivo Claber supportato trovato. Assicurati che il dispositivo sia acceso e nel raggio di un adattatore Bluetooth o di un proxy Bluetooth.",
       "already_configured": "Questo dispositivo è già configurato."
     }
@@ -26,14 +25,14 @@
     "step": {
       "init": {
         "title": "Opzioni Claber BT",
-        "description": "I comandi Hydro ({scope}) usano autenticazione derivata dal MAC — nessun PIN. La sorgente Bluetooth preferita è opzionale. Questa integrazione non crea automazioni e non espone entità a HomeKit o Assist.",
+        "description": "I comandi Hydro ({scope}) usano autenticazione derivata dal MAC, senza PIN. La sorgente Bluetooth preferita è opzionale. Questa integrazione non crea automazioni e non espone entità a HomeKit o Assist.",
         "data": {
           "preferred_bluetooth_source": "Id sorgente Bluetooth preferita (opzionale; vuoto = ultima sorgente adapter/proxy connectable)"
         }
       }
     },
     "abort": {
-      "options_only_hydro": "Le opzioni comando sono disponibili solo per voci Hydro-4 BT."
+      "options_only_hydro": "Le opzioni comando sono disponibili solo per voci hydro (Hydro-4 BT, Controller-4 BT, Elettra-BT)."
     }
   }
 }

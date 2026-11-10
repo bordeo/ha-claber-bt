@@ -1,5 +1,5 @@
 name: Feature request
-description: Suggest an enhancement
+description: Suggest a feature
 labels: ["enhancement"]
 body:
   - type: textarea
@@ -20,13 +20,15 @@ body:
     id: alternatives
     attributes:
       label: Alternatives considered
-      description: Optional — other approaches you tried or rejected.
+      description: Optional. Other approaches you tried or rejected.
   - type: dropdown
     id: device
     attributes:
       label: Related device
       options:
         - Hydro-4 BT (90840)
+        - Controller-4 BT (90842)
+        - Elettra-BT (90843)
         - Rain Sensor BT (90844)
         - Card / Lovelace
         - General / both devices

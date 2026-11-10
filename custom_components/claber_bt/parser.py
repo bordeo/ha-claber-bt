@@ -46,7 +46,7 @@ try:
         msd_from_adv,
         msd_from_service_info,
     )
-    from .const import SUPPORTED_DEVICE_KINDS
+    from .const import SUPPORTED_DEVICE_KINDS, is_hydro_family
 except ImportError:  # unittest without package context
     from claber_passive import (  # type: ignore[no-redef]
         LOCAL_NAME,
@@ -57,7 +57,7 @@ except ImportError:  # unittest without package context
         msd_from_adv,
         msd_from_service_info,
     )
-    from const import SUPPORTED_DEVICE_KINDS  # type: ignore[no-redef]
+    from const import SUPPORTED_DEVICE_KINDS, is_hydro_family  # type: ignore[no-redef]
 
 
 @dataclass(slots=True)
@@ -220,7 +220,7 @@ class ClaberBluetoothDeviceData:
         # poison live detection or unlock trustworthy publish.
         if has_raw:
             self._callback_count += 1
-        if self.expected_kind == "hydro4" and not has_raw:
+        if is_hydro_family(self.expected_kind) and not has_raw:
             advert_time = getattr(service_info, "time", None)
             if not isinstance(advert_time, (int, float)):
                 advert_time = None
@@ -269,7 +269,7 @@ class ClaberBluetoothDeviceData:
         # Hydro + Rain: live state lives in company-ID bytes of the on-air AD.
         # HA manufacturer_data merges historical company IDs (Rain temp changes
         # the key). Without raw, never publish values as trustworthy.
-        if kind in ("hydro4", "rain_sensor"):
+        if is_hydro_family(kind) or kind == "rain_sensor":
             trustworthy = (
                 bool(live)
                 and bool(meta.get("had_raw"))
@@ -294,7 +294,7 @@ class ClaberBluetoothDeviceData:
             advert_time=advert_time,
             advert_age_seconds=advert_age,
             live_confirmed=live,
-            presence_only=(kind == "hydro4" and not trustworthy),
+            presence_only=(is_hydro_family(kind) and not trustworthy),
         )
         if self.last_trustworthy_values_monotonic is not None:
             update.trustworthy_values_age_seconds = max(
@@ -374,9 +374,9 @@ class ClaberBluetoothDeviceData:
             "selection": "ambiguous",
         }
 
-        # Hydro-4: ONLY the on-air raw AD (Rea). Accumulated manufacturer_data
-        # keys (0/1/2/4/8/305) are historical company IDs, not current state.
-        if self.expected_kind == "hydro4":
+        # Hydro family: ONLY the on-air raw AD (Rea). Accumulated
+        # manufacturer_data keys are historical company IDs, not current state.
+        if is_hydro_family(self.expected_kind):
             if not raw:
                 meta["selection"] = "no_raw"
                 if remember:

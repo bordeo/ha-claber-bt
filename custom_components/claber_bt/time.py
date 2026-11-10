@@ -19,13 +19,13 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from . import ClaberBTConfigEntry
 from .const import (
     CONF_DEVICE_KIND,
-    DEVICE_KIND_HYDRO4,
     DOMAIN,
     MANUFACTURER,
     MODEL_NAMES,
     MODEL_NUMBERS,
     PROGRAM_IDS,
     START_SLOTS,
+    is_hydro_family,
 )
 from .hydro_program_session import async_apply_program_field
 from .program_store import ProgramStore
@@ -50,7 +50,7 @@ async def async_setup_entry(
     entry: ClaberBTConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
-    if entry.data.get(CONF_DEVICE_KIND) != DEVICE_KIND_HYDRO4:
+    if not is_hydro_family(entry.data.get(CONF_DEVICE_KIND)):
         return
     store = hass.data[DOMAIN][entry.entry_id]
     ps: ProgramStore = store.setdefault("program_store", ProgramStore())

@@ -15,15 +15,15 @@ from . import ClaberBTConfigEntry
 from .const import (
     CONF_DEVICE_KIND,
     DEFAULT_MANUAL_MINUTES,
-    DEVICE_KIND_HYDRO4,
     DOMAIN,
-    MANUAL_LINES,
     MANUAL_MAX_MINUTES,
     MANUAL_MIN_MINUTES,
     MANUFACTURER,
     MODEL_NAMES,
     MODEL_NUMBERS,
     PROGRAM_IDS,
+    is_hydro_family,
+    manual_lines_for_kind,
 )
 from .hydro_program_codec import (
     BUDGET_MAX,
@@ -56,14 +56,15 @@ async def async_setup_entry(
     entry: ClaberBTConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
-    if entry.data.get(CONF_DEVICE_KIND) != DEVICE_KIND_HYDRO4:
+    kind = entry.data.get(CONF_DEVICE_KIND)
+    if not is_hydro_family(kind):
         return
     store = hass.data[DOMAIN][entry.entry_id]
     ps: ProgramStore = store.setdefault("program_store", ProgramStore())
     entities: list[NumberEntity] = [ClaberManualDurationNumber(hass, entry)]
     for prog in PROGRAM_IDS:
         entities.append(ClaberProgramBudgetNumber(hass, entry, ps, prog))
-        for line in MANUAL_LINES:
+        for line in manual_lines_for_kind(kind):
             entities.append(ClaberProgramLineNumber(hass, entry, ps, prog, line))
     async_add_entities(entities)
 

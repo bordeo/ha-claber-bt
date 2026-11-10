@@ -29,12 +29,14 @@ from homeassistant.helpers import config_validation as cv
 try:
     from .const import (
         CONF_BLUETOOTH_SOURCE,
+        CONF_DEVICE_KIND,
         DEFAULT_MANUAL_MINUTES,
-        DEVICE_KIND_HYDRO4,
         DOMAIN,
         MANUAL_LINES,
         MANUAL_MAX_MINUTES,
         MANUAL_MIN_MINUTES,
+        is_hydro_family,
+        manual_lines_for_kind,
     )
     from .hydro_commands import (
         build_auth_packet,
@@ -46,12 +48,14 @@ try:
 except ImportError:  # unittest without package context
     from const import (  # type: ignore[no-redef]
         CONF_BLUETOOTH_SOURCE,
+        CONF_DEVICE_KIND,
         DEFAULT_MANUAL_MINUTES,
-        DEVICE_KIND_HYDRO4,
         DOMAIN,
         MANUAL_LINES,
         MANUAL_MAX_MINUTES,
         MANUAL_MIN_MINUTES,
+        is_hydro_family,
+        manual_lines_for_kind,
     )
     from hydro_commands import (  # type: ignore[no-redef]
         build_auth_packet,
@@ -588,7 +592,7 @@ def _hydro_entry(hass: HomeAssistant, prefer_entry_id: str | None = None):
         entry = payload.get("entry")
         if entry is None:
             continue
-        if entry.data.get("device_kind") != DEVICE_KIND_HYDRO4:
+        if not is_hydro_family(entry.data.get(CONF_DEVICE_KIND)):
             continue
         if prefer_entry_id and ent_id == prefer_entry_id:
             return entry
@@ -650,6 +654,17 @@ async def execute_command(
             use_line, use_minutes, use_stop = 1, 1, True
         else:
             use_line = 1 if line is None else line
+            allowed = manual_lines_for_kind(entry.data.get(CONF_DEVICE_KIND))
+            if use_line not in allowed:
+                return _sanitize_result(
+                    {
+                        "error": "invalid_line",
+                        "writes": 0,
+                        "stop_only": False,
+                        "line": use_line,
+                    },
+                    address=address,
+                )
             use_minutes = (
                 get_stored_duration(hass, entry.entry_id) if minutes is None else minutes
             )
@@ -734,7 +749,9 @@ async def async_register_manual_once(
             if not isinstance(payload, dict):
                 continue
             entry = payload.get("entry")
-            if entry is not None and entry.data.get("device_kind") == DEVICE_KIND_HYDRO4:
+            if entry is not None and is_hydro_family(
+                entry.data.get(CONF_DEVICE_KIND)
+            ):
                 still = True
                 break
         if not still and hass.services.has_service(DOMAIN, SERVICE_MANUAL_ONCE):

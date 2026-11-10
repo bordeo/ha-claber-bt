@@ -18,7 +18,13 @@ from homeassistant.components import bluetooth
 from homeassistant.core import HomeAssistant
 
 try:
-    from .const import CONF_BLUETOOTH_SOURCE, CONF_DEVICE_KIND, DEVICE_KIND_HYDRO4, DOMAIN
+    from .const import (
+        CONF_BLUETOOTH_SOURCE,
+        CONF_DEVICE_KIND,
+        DOMAIN,
+        is_hydro_family,
+        manual_lines_for_kind,
+    )
     from .hydro_commands import build_auth_packet
     from .hydro_program_codec import (
         LIVE_ENABLED,
@@ -135,7 +141,7 @@ async def _open_session(
 async def async_read_programs(hass: HomeAssistant, entry_id: str) -> dict[str, Any]:
     """User-pressed 'Leggi programmi': one read, no retry."""
     entry = hass.data[DOMAIN][entry_id]["entry"]
-    if entry.data.get(CONF_DEVICE_KIND) != DEVICE_KIND_HYDRO4:
+    if not is_hydro_family(entry.data.get(CONF_DEVICE_KIND)):
         return {"success": False, "error": "not_hydro"}
     address = _norm_mac(entry.unique_id or "")
     preferred = entry.options.get(CONF_BLUETOOTH_SOURCE)
@@ -202,8 +208,12 @@ async def async_apply_program_field(
         return {"success": False, "error": "writes_disabled"}
 
     entry = hass.data[DOMAIN][entry_id]["entry"]
-    if entry.data.get(CONF_DEVICE_KIND) != DEVICE_KIND_HYDRO4:
+    if not is_hydro_family(entry.data.get(CONF_DEVICE_KIND)):
         return {"success": False, "error": "not_hydro"}
+    if field == "line_minutes":
+        line_n = int(value[0])
+        if line_n not in manual_lines_for_kind(entry.data.get(CONF_DEVICE_KIND)):
+            return {"success": False, "error": "invalid_line"}
     address = _norm_mac(entry.unique_id or "")
     preferred = entry.options.get(CONF_BLUETOOTH_SOURCE)
     store = _get_store(hass, entry_id)
@@ -333,7 +343,7 @@ async def async_apply_program_fields(
         return {"success": True, "error": None, "writes": 0}
 
     entry = hass.data[DOMAIN][entry_id]["entry"]
-    if entry.data.get(CONF_DEVICE_KIND) != DEVICE_KIND_HYDRO4:
+    if not is_hydro_family(entry.data.get(CONF_DEVICE_KIND)):
         return {"success": False, "error": "not_hydro"}
     address = _norm_mac(entry.unique_id or "")
     preferred = entry.options.get(CONF_BLUETOOTH_SOURCE)
@@ -444,7 +454,7 @@ async def async_set_auto_mode(hass: HomeAssistant, entry_id: str, *, on: bool) -
         return {"success": False, "error": "writes_disabled"}
 
     entry = hass.data[DOMAIN][entry_id]["entry"]
-    if entry.data.get(CONF_DEVICE_KIND) != DEVICE_KIND_HYDRO4:
+    if not is_hydro_family(entry.data.get(CONF_DEVICE_KIND)):
         return {"success": False, "error": "not_hydro"}
     address = _norm_mac(entry.unique_id or "")
     preferred = entry.options.get(CONF_BLUETOOTH_SOURCE)
@@ -507,9 +517,18 @@ async def async_register_program_services(hass: HomeAssistant, entry_id: str):
         days = call.data.get("days") or {}
         for day, on in days.items():
             fields.append(("weekday_bit", (str(day), bool(on))))
+        entry = hass.data[DOMAIN][entry_id]["entry"]
+        allowed_lines = manual_lines_for_kind(entry.data.get(CONF_DEVICE_KIND))
         lines = call.data.get("lines") or {}
         for lk, mins in lines.items():
-            fields.append(("line_minutes", (int(lk), int(mins))))
+            line_n = int(lk)
+            if line_n not in allowed_lines:
+                from homeassistant.exceptions import HomeAssistantError
+
+                raise HomeAssistantError(
+                    f"Claber write_program {prog}: invalid_line {line_n}"
+                )
+            fields.append(("line_minutes", (line_n, int(mins))))
         starts = call.data.get("starts") or {}
         for sk, spec in starts.items():
             if not isinstance(spec, dict):
@@ -552,7 +571,7 @@ async def async_register_program_services(hass: HomeAssistant, entry_id: str):
             if not isinstance(payload, dict):
                 continue
             entry = payload.get("entry")
-            if entry is not None and entry.data.get(CONF_DEVICE_KIND) == DEVICE_KIND_HYDRO4:
+            if entry is not None and is_hydro_family(entry.data.get(CONF_DEVICE_KIND)):
                 still = True
                 break
         if not still and hass.services.has_service(DOMAIN, SERVICE_WRITE_PROGRAM):

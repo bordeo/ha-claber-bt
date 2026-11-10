@@ -12,7 +12,7 @@ from typing import Any
 
 from homeassistant.core import HomeAssistant, callback
 
-from .const import DEVICE_KIND_HYDRO4, DOMAIN
+from .const import CONF_DEVICE_KIND, DEVICE_KIND_HYDRO4, DOMAIN, is_hydro_family
 from .parser import ClaberUpdate
 from .sensor import clear_irrigation_ends_cache
 
@@ -133,9 +133,15 @@ def apply_after_manual_ack(
             "remaining_minutes": mins,
             "opening_program": "manual",
         }
+    entry = _store(hass, entry_id).get("entry")
+    kind = (
+        entry.data.get(CONF_DEVICE_KIND)
+        if entry is not None
+        else DEVICE_KIND_HYDRO4
+    )
     update = ClaberUpdate(
         address=address,
-        device_kind=DEVICE_KIND_HYDRO4,
+        device_kind=kind if is_hydro_family(kind) else DEVICE_KIND_HYDRO4,
         name=None,
         rssi=None,
         fields=fields,
@@ -149,7 +155,11 @@ def apply_after_manual_ack(
 @callback
 def patch_update_fields(hass: HomeAssistant, entry_id: str, update: ClaberUpdate) -> None:
     """Mutate a live advert update in-place for hold-off / force."""
-    if update.device_kind != DEVICE_KIND_HYDRO4 or not update.trustworthy or not update.fields:
+    if (
+        not is_hydro_family(update.device_kind)
+        or not update.trustworthy
+        or not update.fields
+    ):
         return
     raw = list(update.fields.get("lines_watering") or [False, False, False, False])
     clear_force_if_advert_matches(hass, entry_id, raw)

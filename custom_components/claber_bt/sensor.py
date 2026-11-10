@@ -37,13 +37,13 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from . import ClaberBTConfigEntry
 from .const import (
     DOMAIN,
-    DEVICE_KIND_HYDRO4,
     DEVICE_KIND_RAIN,
     ENERGY_LEVEL_OPTIONS,
     MANUFACTURER,
     MODEL_NAMES,
     MODEL_NUMBERS,
     OPENING_PROGRAM_OPTIONS,
+    is_hydro_family,
 )
 from .parser import ClaberUpdate
 
@@ -207,7 +207,7 @@ def sensor_update_to_bluetooth_data_update(
     descriptions: dict[str, SensorEntityDescription]
     if update.device_kind == DEVICE_KIND_RAIN:
         descriptions = _RAIN_SENSORS
-    elif update.device_kind == DEVICE_KIND_HYDRO4:
+    elif is_hydro_family(update.device_kind):
         descriptions = _HYDRO_SENSORS
     else:
         descriptions = {}
@@ -224,7 +224,7 @@ def sensor_update_to_bluetooth_data_update(
                 "energy_level": update.fields.get("energy_level"),
             }
             presence_last_seen = True
-        elif update.device_kind == DEVICE_KIND_HYDRO4:
+        elif is_hydro_family(update.device_kind):
             values = {
                 "irrigation_ends_at": _irrigation_end(
                     update.address, update.fields.get("remaining_minutes")
@@ -236,12 +236,12 @@ def sensor_update_to_bluetooth_data_update(
             presence_last_seen = True
     elif not update.trustworthy and not update.fields and descriptions:
         values = {key: None for key in descriptions}
-        if update.device_kind == DEVICE_KIND_HYDRO4:
+        if is_hydro_family(update.device_kind):
             presence_last_seen = bool(update.live_confirmed)
     elif not update.trustworthy:
         if update.rssi is None and not getattr(update, "presence_only", False):
             return PassiveBluetoothDataUpdate()
-        if update.device_kind == DEVICE_KIND_HYDRO4:
+        if is_hydro_family(update.device_kind):
             values = {key: None for key in _HYDRO_SENSORS}
             descriptions = dict(_HYDRO_SENSORS)
             presence_last_seen = bool(update.live_confirmed)
@@ -252,9 +252,9 @@ def sensor_update_to_bluetooth_data_update(
     entity_data: dict[PassiveBluetoothEntityKey, Any] = {}
     entity_names: dict[PassiveBluetoothEntityKey, str | None] = {}
 
-    allow_none = (not update.trustworthy and update.device_kind == DEVICE_KIND_HYDRO4) or (
-        not update.fields and update.device_kind == DEVICE_KIND_HYDRO4
-    )
+    allow_none = (
+        not update.trustworthy and is_hydro_family(update.device_kind)
+    ) or (not update.fields and is_hydro_family(update.device_kind))
     for key, description in descriptions.items():
         if key not in values:
             continue

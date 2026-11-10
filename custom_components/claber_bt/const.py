@@ -3,26 +3,38 @@
 from __future__ import annotations
 
 DOMAIN = "claber_bt"
-VERSION = "0.1.13"
+VERSION = "0.1.14"
 
 CONF_DEVICE_KIND = "device_kind"
 CONF_BLUETOOTH_SOURCE = "preferred_bluetooth_source"
 CONF_ENABLE_MANUAL_ONCE = "enable_experimental_manual_once"  # legacy ignored
 
 DEVICE_KIND_HYDRO4 = "hydro4"
+DEVICE_KIND_MODULO4 = "modulo4"
+DEVICE_KIND_ELETTROVALVOLA = "elettrovalvola"
 DEVICE_KIND_RAIN = "rain_sensor"
-SUPPORTED_DEVICE_KINDS = frozenset({DEVICE_KIND_HYDRO4, DEVICE_KIND_RAIN})
-UNSUPPORTED_DEVICE_KINDS = frozenset({"modulo4", "elettrovalvola"})
+
+# App model nibble 1/2/3 share decode_hydro; rain is 4.
+HYDRO_FAMILY_KINDS = frozenset(
+    {DEVICE_KIND_HYDRO4, DEVICE_KIND_MODULO4, DEVICE_KIND_ELETTROVALVOLA}
+)
+SUPPORTED_DEVICE_KINDS = frozenset({*HYDRO_FAMILY_KINDS, DEVICE_KIND_RAIN})
 
 MANUFACTURER = "Claber"
 
+# Official myAquaSystem SKUs. Model-code → product mapping for 2/3 follows
+# Claber's underground range naming (Controller-4 / Elettra), not a live capture.
 MODEL_NUMBERS = {
     DEVICE_KIND_HYDRO4: "90840",
+    DEVICE_KIND_MODULO4: "90842",
+    DEVICE_KIND_ELETTROVALVOLA: "90843",
     DEVICE_KIND_RAIN: "90844",
 }
 
 MODEL_NAMES = {
     DEVICE_KIND_HYDRO4: "Hydro-4 BT",
+    DEVICE_KIND_MODULO4: "Controller-4 BT",
+    DEVICE_KIND_ELETTROVALVOLA: "Elettra-BT",
     DEVICE_KIND_RAIN: "Rain Sensor BT",
 }
 
@@ -54,6 +66,20 @@ WEEKDAY_LABELS_IT = {
     "sun": "Dom",
 }
 START_SLOTS = (1, 2, 3, 4)
+
+
+def is_hydro_family(kind: str | None) -> bool:
+    """True for Hydro-4 / Controller-4 / Elettra (shared hydro advert parser)."""
+    return kind in HYDRO_FAMILY_KINDS
+
+
+def manual_lines_for_kind(kind: str | None) -> tuple[int, ...]:
+    """Irrigation lines exposed for this device kind."""
+    if kind == DEVICE_KIND_ELETTROVALVOLA:
+        return (1,)
+    if is_hydro_family(kind):
+        return MANUAL_LINES
+    return ()
 
 
 def normalize_mac(address: str) -> str:

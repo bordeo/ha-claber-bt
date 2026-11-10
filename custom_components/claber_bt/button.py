@@ -11,11 +11,11 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from . import ClaberBTConfigEntry
 from .const import (
     CONF_DEVICE_KIND,
-    DEVICE_KIND_HYDRO4,
     DOMAIN,
     MANUFACTURER,
     MODEL_NAMES,
     MODEL_NUMBERS,
+    is_hydro_family,
 )
 from .hydro_program_session import async_read_programs
 from .manual_once import execute_command
@@ -47,7 +47,7 @@ async def async_setup_entry(
     entry: ClaberBTConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
-    if entry.data.get(CONF_DEVICE_KIND) != DEVICE_KIND_HYDRO4:
+    if not is_hydro_family(entry.data.get(CONF_DEVICE_KIND)):
         return
     async_add_entities(
         [
