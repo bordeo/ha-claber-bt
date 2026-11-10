@@ -26,7 +26,7 @@
     "step": {
       "init": {
         "title": "Opzioni Claber BT",
-        "description": "I comandi Hydro ({scope}) usano autenticazione derivata dal MAC — nessun PIN. La sorgente Bluetooth preferita è opzionale. Questa integrazione non crea automazioni e non espone entità a HomeKit o Assist.",
+        "description": "I comandi Hydro ({scope}) usano autenticazione derivata dal MAC, senza PIN. La sorgente Bluetooth preferita è opzionale. Questa integrazione non crea automazioni e non espone entità a HomeKit o Assist.",
         "data": {
           "preferred_bluetooth_source": "Id sorgente Bluetooth preferita (opzionale; vuoto = ultima sorgente adapter/proxy connectable)"
         }

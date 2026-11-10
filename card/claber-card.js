@@ -119,7 +119,7 @@
       startProgramNowQ: "Avviare ora Programma {letter}?",
       activeLine: "Attivo · Linea {lines}",
       dayLabels: { lun: "Lun", mar: "Mar", mer: "Mer", gio: "Gio", ven: "Ven", sab: "Sab", dom: "Dom" },
-      cardDescription: "Claber Hydro-4 / Rain Sensor — stile app myClaber",
+      cardDescription: "Claber Hydro-4 / Rain Sensor, stile app myClaber",
     },
   };
 

@@ -16,7 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Manifest documentation / issue tracker / codeowners point at this repository
-- Public-facing service and config-flow copy scrubbed of private draft notes
+- Service and config-flow copy clarified for public release
 
 ### Fixed
 
@@ -26,7 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Cmd 0C “start program A/B now” buttons
+- Cmd 0C "start program A/B now" buttons
 
 ## [0.1.11] - 2026-11
 
