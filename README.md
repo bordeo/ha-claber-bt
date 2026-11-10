@@ -6,7 +6,7 @@
 [![HACS Action](https://github.com/bordeo/ha-claber-bt/actions/workflows/hacs.yml/badge.svg)](https://github.com/bordeo/ha-claber-bt/actions/workflows/hacs.yml)
 [![pytest](https://github.com/bordeo/ha-claber-bt/actions/workflows/pytest.yml/badge.svg)](https://github.com/bordeo/ha-claber-bt/actions/workflows/pytest.yml)
 
-Home Assistant custom integration and Lovelace card for Claber Bluetooth irrigation devices.
+Home Assistant custom integration and Lovelace card for Claber myAquaSystem Bluetooth irrigation devices.
 
 [![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=bordeo&repository=ha-claber-bt&category=integration)
 [![Open your Home Assistant instance and start setting up a new integration.](https://my.home-assistant.io/badges/config_flow_start.svg)](https://my.home-assistant.io/redirect/config_flow_start/?domain=claber_bt)
@@ -21,12 +21,12 @@ Home Assistant custom integration and Lovelace card for Claber Bluetooth irrigat
 
 ## Supported devices
 
+This integration targets Claber's [myAquaSystem](https://www.claber.com/en/prodotti/in-evidenza/myaquasystem/) Bluetooth range, the connected family managed with the myClaber app. It should be compatible with myAquaSystem devices for that reason. Only Hydro-4 BT and Rain Sensor BT have been tested; the rest of the myAquaSystem range has not.
+
 | Device | Model | Notes |
 | --- | --- | --- |
 | Hydro-4 BT | 90840 | Status plus manual and program commands |
 | Rain Sensor BT | 90844 | Temperature, rain, battery |
-
-Other Claber Bluetooth models are not supported.
 
 ## Requirements
 
